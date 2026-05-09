@@ -6,9 +6,13 @@
     "type": "object",
     "properties": {
       "data": {
+        "minItems": 1,
         "type": "array",
         "items": {
           "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
           "additionalProperties": {
             "anyOf": [
               {
@@ -21,50 +25,50 @@
                 "type": "null"
               }
             ]
-          },
-          "propertyNames": {
-            "type": "string"
           }
         },
-        "minItems": 1,
         "description": "Data for spreadsheet, an array of objects where each object represents a row. Keys are column names and values can be string, number, or null. Such as, [{ name: 'John', age: 30 }, { name: 'Jane', age: 25 }]."
       },
       "rows": {
+        "description": "Row header fields for pivot table. When 'rows' or 'values' is provided, the spreadsheet will be rendered as a pivot table.",
         "type": "array",
         "items": {
           "type": "string"
-        },
-        "description": "Row header fields for pivot table. When 'rows' or 'values' is provided, the spreadsheet will be rendered as a pivot table."
+        }
       },
       "columns": {
+        "description": "Column header fields, used to specify the order of columns. For regular tables, this determines column order; for pivot tables, this is used for column grouping.",
         "type": "array",
         "items": {
           "type": "string"
-        },
-        "description": "Column header fields, used to specify the order of columns. For regular tables, this determines column order; for pivot tables, this is used for column grouping."
+        }
       },
       "values": {
+        "description": "Value fields for pivot table. When 'rows' or 'values' is provided, the spreadsheet will be rendered as a pivot table.",
         "type": "array",
         "items": {
           "type": "string"
-        },
-        "description": "Value fields for pivot table. When 'rows' or 'values' is provided, the spreadsheet will be rendered as a pivot table."
+        }
       },
       "theme": {
-        "type": "string",
-        "enum": ["default", "dark"],
         "default": "default",
-        "description": "Set the theme for the spreadsheet, optional, default is 'default'."
+        "description": "Set the theme for the spreadsheet, optional, default is 'default'.",
+        "type": "string",
+        "enum": ["default", "dark"]
       },
       "width": {
-        "type": "number",
         "default": 600,
-        "description": "Set the width of chart, default is 600."
+        "description": "Set the width of chart in pixels, 50–4000. Default is 600.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "height": {
-        "type": "number",
         "default": 400,
-        "description": "Set the height of chart, default is 400."
+        "description": "Set the height of chart in pixels, 50–4000. Default is 400.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       }
     },
     "required": ["data"]

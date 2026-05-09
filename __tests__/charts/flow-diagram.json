@@ -9,68 +9,81 @@
         "type": "object",
         "properties": {
           "nodes": {
-            "type": "array",
             "minItems": 1,
-            "items": {
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              },
-              "required": ["name"],
-              "type": "object"
-            }
-          },
-          "edges": {
+            "maxItems": 500,
             "type": "array",
             "items": {
+              "type": "object",
               "properties": {
                 "name": {
                   "type": "string",
-                  "default": ""
-                },
-                "source": {
-                  "type": "string"
-                },
-                "target": {
-                  "type": "string"
+                  "minLength": 1,
+                  "maxLength": 200
                 }
               },
-              "required": ["source", "target"],
-              "type": "object"
+              "required": ["name"]
+            }
+          },
+          "edges": {
+            "maxItems": 2000,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "name": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 200
+                }
+              },
+              "required": ["source", "target"]
             }
           }
         },
         "required": ["nodes", "edges"],
         "description": "Data for flow diagram chart, such as, { nodes: [{ name: 'node1' }, { name: 'node2' }], edges: [{ source: 'node1', target: 'node2', name: 'edge1' }] }."
       },
-      "theme": {
-        "default": "default",
-        "description": "Set the theme for the chart, optional, default is 'default'.",
-        "enum": ["default", "academy", "dark"],
-        "type": "string"
-      },
       "style": {
         "description": "Style configuration for the chart with a JSON object, optional.",
+        "type": "object",
         "properties": {
           "texture": {
             "default": "default",
             "description": "Set the texture for the chart, optional, default is 'default'. 'rough' refers to hand-drawn style.",
-            "enum": ["default", "rough"],
-            "type": "string"
+            "type": "string",
+            "enum": ["default", "rough"]
           }
-        },
-        "type": "object"
+        }
+      },
+      "theme": {
+        "default": "default",
+        "description": "Set the theme for the chart, optional, default is 'default'.",
+        "type": "string",
+        "enum": ["default", "academy", "dark"]
       },
       "width": {
-        "type": "number",
-        "description": "Set the width of chart, default is 600.",
-        "default": 600
+        "default": 600,
+        "description": "Set the width of chart in pixels, 50–4000. Default is 600.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "height": {
-        "type": "number",
-        "description": "Set the height of chart, default is 400.",
-        "default": 400
+        "default": 400,
+        "description": "Set the height of chart in pixels, 50–4000. Default is 400.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       }
     },
     "required": ["data"]

@@ -6,65 +6,73 @@
     "type": "object",
     "properties": {
       "data": {
-        "type": "array",
         "minItems": 1,
+        "type": "array",
         "items": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "number"
-            },
             "text": {
               "type": "string"
+            },
+            "value": {
+              "type": "number"
             }
           },
           "required": ["text", "value"]
         },
-        "description": "Data for word cloud chart, it should be an array of objects, each object contains a `text` field and a `value` field, such as, [{ value: 4.272, text: '\u5f62\u6210' }]."
-      },
-      "theme": {
-        "default": "default",
-        "description": "Set the theme for the chart, optional, default is 'default'.",
-        "enum": ["default", "academy", "dark"],
-        "type": "string"
+        "description": "Data for word cloud chart, it should be an array of objects, each object contains a `text` field and a `value` field, such as, [{ value: 4.272, text: '形成' }]."
       },
       "style": {
         "description": "Style configuration for the chart with a JSON object, optional.",
+        "type": "object",
         "properties": {
           "backgroundColor": {
             "description": "Background color of the chart, such as, '#fff'.",
-            "type": "string"
+            "type": "string",
+            "maxLength": 64
           },
           "palette": {
             "description": "Color palette for the chart, it is a collection of colors.",
+            "maxItems": 64,
+            "type": "array",
             "items": {
-              "type": "string"
-            },
-            "type": "array"
+              "type": "string",
+              "maxLength": 64
+            }
           },
           "texture": {
             "default": "default",
             "description": "Set the texture for the chart, optional, default is 'default'. 'rough' refers to hand-drawn style.",
-            "enum": ["default", "rough"],
-            "type": "string"
+            "type": "string",
+            "enum": ["default", "rough"]
           }
-        },
-        "type": "object"
+        }
+      },
+      "theme": {
+        "default": "default",
+        "description": "Set the theme for the chart, optional, default is 'default'.",
+        "type": "string",
+        "enum": ["default", "academy", "dark"]
       },
       "width": {
-        "type": "number",
-        "description": "Set the width of chart, default is 600.",
-        "default": 600
+        "default": 600,
+        "description": "Set the width of chart in pixels, 50–4000. Default is 600.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "height": {
-        "type": "number",
-        "description": "Set the height of chart, default is 400.",
-        "default": 400
+        "default": 400,
+        "description": "Set the height of chart in pixels, 50–4000. Default is 400.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "title": {
-        "type": "string",
         "default": "",
-        "description": "Set the title of chart."
+        "description": "Set the title of chart.",
+        "type": "string",
+        "maxLength": 200
       }
     },
     "required": ["data"]

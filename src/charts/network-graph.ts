@@ -10,14 +10,24 @@ import {
   WidthSchema,
 } from "./base";
 
-// Network graph input schema
+// Network graph input schema. Bounds are intentionally generous for
+// legitimate analytics graphs but finite: an attacker cannot make the
+// renderer allocate / iterate over millions of elements.
+const MAX_NODES = 500;
+const MAX_EDGES = 2_000;
+
 const schema = {
   data: z
     .object({
       nodes: z
         .array(NodeSchema)
-        .nonempty({ message: "At least one node is required." }),
-      edges: z.array(EdgeSchema),
+        .nonempty({ message: "At least one node is required." })
+        .max(MAX_NODES, {
+          message: `Too many nodes (max ${MAX_NODES}).`,
+        }),
+      edges: z.array(EdgeSchema).max(MAX_EDGES, {
+        message: `Too many edges (max ${MAX_EDGES}).`,
+      }),
     })
     .describe(
       "Data for network graph chart, such as, { nodes: [{ name: 'node1' }, { name: 'node2' }], edges: [{ source: 'node1', target: 'node2', name: 'edge1' }] }",

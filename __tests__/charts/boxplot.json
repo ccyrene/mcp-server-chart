@@ -2,93 +2,103 @@
   "name": "generate_boxplot_chart",
   "description": "Generate a boxplot chart to show data for statistical summaries among different categories, such as, comparing the distribution of data points across categories.",
   "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
       "data": {
+        "minItems": 1,
         "type": "array",
         "items": {
           "type": "object",
           "properties": {
             "category": {
               "type": "string",
-              "description": "Category of the data point, such as '\u5206\u7c7b\u4e00'."
+              "description": "Category of the data point, such as '分类一'."
             },
             "value": {
               "type": "number",
               "description": "Value of the data point, such as 10."
             },
             "group": {
-              "type": "string",
-              "description": "Optional group for the data point, used for grouping in the boxplot."
+              "description": "Optional group for the data point, used for grouping in the boxplot.",
+              "type": "string"
             }
           },
           "required": ["category", "value"]
         },
-        "minItems": 1,
-        "description": "Data for boxplot chart, such as, [{ category: '\u5206\u7c7b\u4e00', value: 10 }] or [{ category: '\u5206\u7c7b\u4e8c', value: 20, group: '\u7ec4\u522b\u4e00' }]."
+        "description": "Data for boxplot chart, such as, [{ category: '分类一', value: 10 }] or [{ category: '分类二', value: 20, group: '组别一' }]."
       },
       "style": {
         "description": "Style configuration for the chart with a JSON object, optional.",
+        "type": "object",
         "properties": {
           "backgroundColor": {
             "description": "Background color of the chart, such as, '#fff'.",
-            "type": "string"
+            "type": "string",
+            "maxLength": 64
           },
           "palette": {
             "description": "Color palette for the chart, it is a collection of colors.",
+            "maxItems": 64,
+            "type": "array",
             "items": {
-              "type": "string"
-            },
-            "type": "array"
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          "startAtZero": {
+            "default": false,
+            "description": "Whether to start the axis at zero, optional, default is false.",
+            "type": "boolean"
           },
           "texture": {
             "default": "default",
             "description": "Set the texture for the chart, optional, default is 'default'. 'rough' refers to hand-drawn style.",
-            "enum": ["default", "rough"],
-            "type": "string"
-          },
-          "startAtZero": {
-            "type": "boolean",
-            "description": "Whether to start the axis at zero, optional, default is false.",
-            "default": false
+            "type": "string",
+            "enum": ["default", "rough"]
           }
-        },
-        "type": "object"
+        }
       },
       "theme": {
-        "type": "string",
-        "enum": ["default", "academy", "dark"],
         "default": "default",
-        "description": "Set the theme for the chart, optional, default is 'default'."
+        "description": "Set the theme for the chart, optional, default is 'default'.",
+        "type": "string",
+        "enum": ["default", "academy", "dark"]
       },
       "width": {
-        "type": "number",
         "default": 600,
-        "description": "Set the width of chart, default is 600."
+        "description": "Set the width of chart in pixels, 50–4000. Default is 600.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "height": {
-        "type": "number",
         "default": 400,
-        "description": "Set the height of chart, default is 400."
+        "description": "Set the height of chart in pixels, 50–4000. Default is 400.",
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 4000
       },
       "title": {
-        "type": "string",
         "default": "",
-        "description": "Set the title of chart."
+        "description": "Set the title of chart.",
+        "type": "string",
+        "maxLength": 200
       },
       "axisXTitle": {
-        "type": "string",
         "default": "",
-        "description": "Set the x-axis title of chart."
+        "description": "Set the x-axis title of chart.",
+        "type": "string",
+        "maxLength": 200
       },
       "axisYTitle": {
-        "type": "string",
         "default": "",
-        "description": "Set the y-axis title of chart."
+        "description": "Set the y-axis title of chart.",
+        "type": "string",
+        "maxLength": 200
       }
     },
-    "required": ["data"],
-    "$schema": "http://json-schema.org/draft-07/schema#"
+    "required": ["data"]
   },
   "annotations": {
     "title": "Generate Boxplot Chart",

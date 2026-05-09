@@ -39,6 +39,14 @@ const REMOVED_MAP_TOKENS = [
   "districtMap",
   "pathMap",
   "pinMap",
+  // Schemas that only existed for the map tools — restoring any of these
+  // is a strong signal that the map work is being reintroduced.
+  "MapTitleSchema",
+  "MapWidthSchema",
+  "MapHeightSchema",
+  "POIsSchema",
+  "DistrictNameSchema",
+  "StyleSchema",
 ];
 
 function* walk(dir: string): Generator<string> {

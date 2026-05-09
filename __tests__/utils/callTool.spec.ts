@@ -53,6 +53,70 @@ describe("callTool — removed map tools (regression)", () => {
   }
 });
 
+describe("callTool — resource-exhaustion guards (regression)", () => {
+  // base.ts caps width/height at 4000 px. A request that asks for a
+  // 100 000 × 100 000 canvas should be rejected at the schema layer
+  // BEFORE the renderer is invoked. Otherwise one bad call OOMs the
+  // container.
+  it("rejects oversized width", async () => {
+    await expect(
+      callTool("generate_bar_chart", {
+        data: [{ category: "A", value: 1 }],
+        width: 100_000,
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+
+  it("rejects oversized height", async () => {
+    await expect(
+      callTool("generate_bar_chart", {
+        data: [{ category: "A", value: 1 }],
+        height: 100_000,
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+
+  it("rejects width below minimum (avoid 0/negative canvas)", async () => {
+    await expect(
+      callTool("generate_bar_chart", {
+        data: [{ category: "A", value: 1 }],
+        width: 0,
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+
+  it("rejects oversized title (memory/log bloat)", async () => {
+    await expect(
+      callTool("generate_bar_chart", {
+        data: [{ category: "A", value: 1 }],
+        title: "x".repeat(10_000),
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+
+  it("network-graph: rejects too many nodes", async () => {
+    const nodes = Array.from({ length: 1_000 }, (_, i) => ({
+      name: `n${i}`,
+    }));
+    await expect(
+      callTool("generate_network_graph", { data: { nodes, edges: [] } }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+
+  it("flow-diagram: rejects too many edges", async () => {
+    const edges = Array.from({ length: 5_000 }, (_, i) => ({
+      source: "a",
+      target: "b",
+      name: `e${i}`,
+    }));
+    await expect(
+      callTool("generate_flow_diagram", {
+        data: { nodes: [{ name: "a" }, { name: "b" }], edges },
+      }),
+    ).rejects.toMatchObject({ code: ErrorCode.InvalidParams });
+  });
+});
+
 describe("callTool happy path (smoke)", () => {
   it("returns a chart-shaped result for a valid bar chart", async () => {
     const res = await callTool("generate_bar_chart", {

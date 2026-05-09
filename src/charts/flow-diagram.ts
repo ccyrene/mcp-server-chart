@@ -10,14 +10,24 @@ import {
   WidthSchema,
 } from "./base";
 
-// Flow diagram input schema
+// Flow diagram input schema. Bounds protect the renderer from
+// request-driven memory blow-up; flow diagrams are typically small
+// (≤ 50 nodes) so 500 / 2000 is already an order of magnitude over.
+const MAX_NODES = 500;
+const MAX_EDGES = 2_000;
+
 const schema = {
   data: z
     .object({
       nodes: z
         .array(NodeSchema)
-        .nonempty({ message: "At least one node is required." }),
-      edges: z.array(EdgeSchema),
+        .nonempty({ message: "At least one node is required." })
+        .max(MAX_NODES, {
+          message: `Too many nodes (max ${MAX_NODES}).`,
+        }),
+      edges: z.array(EdgeSchema).max(MAX_EDGES, {
+        message: `Too many edges (max ${MAX_EDGES}).`,
+      }),
     })
     .describe(
       "Data for flow diagram chart, such as, { nodes: [{ name: 'node1' }, { name: 'node2' }], edges: [{ source: 'node1', target: 'node2', name: 'edge1' }] }.",

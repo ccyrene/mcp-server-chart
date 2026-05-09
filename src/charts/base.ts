@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+// ── Resource-bound constants ──────────────────────────────────────────
+// These caps protect the renderer from request-driven OOM / DoS. Each
+// chart call allocates a (W × H × 4 bytes) canvas and walks every node /
+// edge / cell, so unbounded inputs translate into unbounded memory.
+//
+// The numbers were picked to stay generous for legitimate analytics
+// use cases — well above any chart a human will actually look at —
+// while finite enough that a malicious caller cannot crash the
+// container with one request.
+const MIN_DIM = 50;
+const MAX_DIM = 4000; // 4000 × 4000 × 4 B ≈ 64 MB raw canvas
+const MAX_TITLE_LEN = 200;
+const MAX_NODE_NAME_LEN = 200;
+const MAX_PALETTE_ENTRIES = 64;
+
 // Define Zod schemas for base configuration properties
 export const ThemeSchema = z
   .enum(["default", "academy", "dark"])
@@ -9,11 +24,13 @@ export const ThemeSchema = z
 
 export const BackgroundColorSchema = z
   .string()
+  .max(64)
   .optional()
   .describe("Background color of the chart, such as, '#fff'.");
 
 export const PaletteSchema = z
-  .array(z.string())
+  .array(z.string().max(64))
+  .max(MAX_PALETTE_ENTRIES)
   .optional()
   .describe("Color palette for the chart, it is a collection of colors.");
 
@@ -32,67 +49,59 @@ export const StartAtZeroSchema = z
 
 export const WidthSchema = z
   .number()
+  .int()
+  .min(MIN_DIM)
+  .max(MAX_DIM)
   .optional()
   .default(600)
-  .describe("Set the width of chart, default is 600.");
+  .describe(
+    `Set the width of chart in pixels, ${MIN_DIM}–${MAX_DIM}. Default is 600.`,
+  );
 
 export const HeightSchema = z
   .number()
+  .int()
+  .min(MIN_DIM)
+  .max(MAX_DIM)
   .optional()
   .default(400)
-  .describe("Set the height of chart, default is 400.");
+  .describe(
+    `Set the height of chart in pixels, ${MIN_DIM}–${MAX_DIM}. Default is 400.`,
+  );
 
 export const TitleSchema = z
   .string()
+  .max(MAX_TITLE_LEN)
   .optional()
   .default("")
   .describe("Set the title of chart.");
 
 export const AxisXTitleSchema = z
   .string()
+  .max(MAX_TITLE_LEN)
   .optional()
   .default("")
   .describe("Set the x-axis title of chart.");
 
 export const AxisYTitleSchema = z
   .string()
+  .max(MAX_TITLE_LEN)
   .optional()
   .default("")
   .describe("Set the y-axis title of chart.");
 
 export const NodeSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1).max(MAX_NODE_NAME_LEN),
 });
 
 export const EdgeSchema = z.object({
-  source: z.string(),
-  target: z.string(),
-  name: z.string().optional().default(""),
+  source: z.string().min(1).max(MAX_NODE_NAME_LEN),
+  target: z.string().min(1).max(MAX_NODE_NAME_LEN),
+  name: z.string().max(MAX_NODE_NAME_LEN).optional().default(""),
 });
 
-// --- The following are only available for Map charts ---
-
-export const MapTitleSchema = z
-  .string()
-  .describe(
-    "The map title should not exceed 16 characters. The content should be consistent with the information the map wants to convey and should be accurate, rich, creative, and attractive.",
-  );
-
-export const MapWidthSchema = z
-  .number()
-  .optional()
-  .default(1600)
-  .describe("Set the width of map, default is 1600.");
-
-export const MapHeightSchema = z
-  .number()
-  .optional()
-  .default(1000)
-  .describe("Set the height of map, default is 1000.");
-
-export const POIsSchema = z
-  .array(z.string())
-  .nonempty("At least one POI name is required.")
-  .describe(
-    'A list of keywords for the names of points of interest (POIs) in Chinese. These POIs usually contain a group of places with similar locations, so the names should be more descriptive, must adding attributives to indicate that they are different places in the same area, such as "北京市" is better than "北京", "杭州西湖" is better than "西湖"; in addition, if you can determine that a location may appear in multiple areas, you can be more specific, such as "杭州西湖的苏堤春晓" is better than "苏堤春晓". The tool will use these keywords to search for specific POIs and query their detailed data, such as latitude and longitude, location photos, etc. For example, ["西安钟楼", "西安大唐不夜城", "西安大雁塔"].',
-  );
+// NOTE: the Map* / POI / DistrictName / Style schemas that previously
+// lived here were deleted along with the map tools (district / path /
+// pin) in sec/strip-remote-rendering — they required a remote geo-tile
+// backend with no local-SSR equivalent. If you re-introduce maps in a
+// future fork, restore those schemas here.
