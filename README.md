@@ -1,4 +1,23 @@
-# MCP Server Chart 
+# MCP Server Chart
+
+> **🛡️ Fork notice — `sec/strip-remote-rendering`**
+>
+> This fork removes all remote-rendering code paths from upstream
+> `antvis/mcp-server-chart`. Charts are rendered in-process via
+> `@antv/gpt-vis-ssr` and returned as `data:image/png;base64,…` URIs;
+> no chart data ever leaves the host.
+>
+> **Behavioural differences from upstream**:
+> - The 3 map tools (`generate_district_map`, `generate_path_map`,
+>   `generate_pin_map`) are **removed** — they require a remote geo-tile
+>   backend with no local-SSR equivalent. Tool count: 27 → 24.
+> - The env vars `VIS_REQUEST_SERVER`, `VIS_RENDER_MODE`, and `SERVICE_ID`
+>   are **no-ops** — the code that read them has been deleted, and the
+>   `axios` dependency is removed entirely. Sections of this README
+>   that describe "Private Deployment" / `VIS_REQUEST_SERVER` apply only
+>   to upstream, not to this fork.
+>
+> See commits `752bc87` and `4449615` for the full diff.
 
 A Model Context Protocol server for generating charts using [AntV](https://github.com/antvis/). We can use this mcp server for _chart generation_ and _data analysis_.
 
