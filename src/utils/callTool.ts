@@ -1,17 +1,17 @@
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import * as Charts from "../charts";
-import { generateChartUrl, generateMap } from "./generate";
+import { generateChartUrl } from "./generate";
 import { logger } from "./logger";
 import { ValidateError } from "./validator";
 
-// Chart type mapping
+// Chart type mapping. Map tools (district / path / pin) were removed
+// because they required a geo-tile backend that cannot run in-process.
 const CHART_TYPE_MAP = {
   generate_area_chart: "area",
   generate_bar_chart: "bar",
   generate_boxplot_chart: "boxplot",
   generate_column_chart: "column",
-  generate_district_map: "district-map",
   generate_dual_axes_chart: "dual-axes",
   generate_fishbone_diagram: "fishbone-diagram",
   generate_flow_diagram: "flow-diagram",
@@ -22,9 +22,7 @@ const CHART_TYPE_MAP = {
   generate_mind_map: "mind-map",
   generate_network_graph: "network-graph",
   generate_organization_chart: "organization-chart",
-  generate_path_map: "path-map",
   generate_pie_chart: "pie",
-  generate_pin_map: "pin-map",
   generate_radar_chart: "radar",
   generate_sankey_chart: "sankey",
   generate_scatter_chart: "scatter",
@@ -78,20 +76,8 @@ export async function callTool(tool: string, args: object = {}) {
       }
     }
 
-    const isMapChartTool = [
-      "generate_district_map",
-      "generate_path_map",
-      "generate_pin_map",
-    ].includes(tool);
-
-    if (isMapChartTool) {
-      // For map charts, we use the generateMap function, and return the mcp result.
-      const { metadata, ...result } = await generateMap(tool, args);
-      return result;
-    }
-
     const url = await generateChartUrl(chartType, args);
-    logger.info(`Generated chart URL: ${url}`);
+    logger.info(`Generated chart URL: ${url.slice(0, 64)}…`);
 
     return {
       content: [
@@ -102,7 +88,7 @@ export async function callTool(tool: string, args: object = {}) {
       ],
       _meta: {
         description:
-          "The content returned by MCP is the remote image URL of the visualization chart, which can be rendered using Markdown or HTML image tags. The _meta.spec content corresponds to the chart's configuration and spec, which can be rendered using AntV GPT-Vis chart components.",
+          "The content returned by MCP is an inline base64 PNG (data:image/png;base64,…) of the visualization chart, rendered locally by @antv/gpt-vis-ssr. The _meta.spec content corresponds to the chart's configuration and spec, which can be rendered using AntV GPT-Vis chart components.",
         spec: { type: chartType, ...args },
       },
     };

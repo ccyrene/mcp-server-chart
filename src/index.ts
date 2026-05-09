@@ -1,8 +1,4 @@
 #!/usr/bin/env node
-// MUST be the very first import — installs a CSS require hook before any
-// `@antv/*` package gets a chance to load its bundler-only CSS imports.
-// See utils/css-shim.ts for context.
-import "./utils/css-shim";
 import { parseArgs } from "node:util";
 import {
   runHTTPStreamableServer,
